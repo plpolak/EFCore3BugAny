@@ -8,7 +8,7 @@ namespace ErrorAnyEF3
 {
     class Program
     {
-        public const string ConnectionString = "Server=jw-mssql2017\\mars;Database=EFTest;Trusted_Connection=True;";
+        public const string ConnectionString = "Server=localhost\\sqlexpress;Database=EFTest;Trusted_Connection=True;";
 
         static void Main(string[] args)
         {
