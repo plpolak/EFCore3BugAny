@@ -1,28 +1,37 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 
 namespace ErrorAnyEF3.DbModel
 {
     public class TestDbContext : DbContext
     {
-        public const string ConnectionString = "...";
-
-        public ILoggerFactory _loggerFactory;
+        public ILoggerFactory loggerFactory;
+        private readonly string connectionString;
 
         public virtual DbSet<DbCIR> CIRs { get; set; }
         public virtual DbSet<DbEntity> Entities { get; set; }
         public virtual DbSet<DbEntityType> EntityTypes { get; set; }
         public virtual DbSet<DbUserLogin> UserLogins { get; set; }
 
-        public TestDbContext(): base()
+        public TestDbContext(string connectionString): base()
         {
-            //_loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+            loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+            this.connectionString = connectionString;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(ConnectionString);
-            optionsBuilder.UseLoggerFactory(_loggerFactory);
+            optionsBuilder.UseSqlServer(connectionString);
+            optionsBuilder.UseLoggerFactory(loggerFactory);
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            foreach (var relationship in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
+            {
+                relationship.DeleteBehavior = DeleteBehavior.Restrict;
+            }
         }
     }
 }
